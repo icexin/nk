@@ -1,6 +1,14 @@
-package nk
+// Copyright 2020 The Libc Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
 
-import "unsafe"
+package libc
+
+import (
+	"unsafe"
+
+	"github.com/icexin/nk/libc/sys/types"
+)
 
 // RawMem represents the biggest byte array the runtime can handle
 type RawMem [1<<30 - 1]byte
@@ -9,7 +17,7 @@ type RawMem [1<<30 - 1]byte
 type RawMem64 [unsafe.Sizeof(RawMem{}) / unsafe.Sizeof(uint64(0))]uint64
 
 // size_t strlen(const char *s)
-func Xstrlen(s uintptr) (r int) {
+func Xstrlen(t *TLS, s uintptr) (r types.Size_t) {
 	if s == 0 {
 		return 0
 	}
@@ -21,7 +29,7 @@ func Xstrlen(s uintptr) (r int) {
 }
 
 // void *memset(void *s, int c, size_t n)
-func Xmemset(s uintptr, c int32, n size_t) uintptr {
+func Xmemset(t *TLS, s uintptr, c int32, n types.Size_t) uintptr {
 	if n != 0 {
 		c := byte(c & 0xff)
 
@@ -32,7 +40,7 @@ func Xmemset(s uintptr, c int32, n size_t) uintptr {
 			bytesBeforeAllignment = uintptr(n)
 		}
 		b := (*RawMem)(unsafe.Pointer(s))[:bytesBeforeAllignment:bytesBeforeAllignment]
-		n -= size_t(bytesBeforeAllignment)
+		n -= types.Size_t(bytesBeforeAllignment)
 		for i := range b {
 			b[i] = c
 		}
@@ -54,7 +62,7 @@ func Xmemset(s uintptr, c int32, n size_t) uintptr {
 }
 
 // void *memcpy(void *dest, const void *src, size_t n);
-func Xmemcpy(dest, src uintptr, n size_t) (r uintptr) {
+func Xmemcpy(t *TLS, dest, src uintptr, n types.Size_t) (r uintptr) {
 	if n == 0 {
 		return dest
 	}

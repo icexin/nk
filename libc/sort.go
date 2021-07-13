@@ -1,21 +1,28 @@
-package nk
+// Copyright 2020 The Libc Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package libc
 
 import (
 	"sort"
 	"unsafe"
+
+	"github.com/icexin/nk/libc/sys/types"
 )
 
 type sorter struct {
 	len  int
 	base uintptr
 	sz   uintptr
-	f    func(uintptr, uintptr) int32
+	f    func(*TLS, uintptr, uintptr) int32
+	t    *TLS
 }
 
 func (s *sorter) Len() int { return s.len }
 
 func (s *sorter) Less(i, j int) bool {
-	return s.f(s.base+uintptr(i)*s.sz, s.base+uintptr(j)*s.sz) < 0
+	return s.f(s.t, s.base+uintptr(i)*s.sz, s.base+uintptr(j)*s.sz) < 0
 }
 
 func (s *sorter) Swap(i, j int) {
@@ -29,13 +36,14 @@ func (s *sorter) Swap(i, j int) {
 }
 
 // void qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
-func Xqsort(base uintptr, nmemb, size size_t, compar uintptr) {
+func Xqsort(t *TLS, base uintptr, nmemb, size types.Size_t, compar uintptr) {
 	sort.Sort(&sorter{
 		len:  int(nmemb),
 		base: base,
 		sz:   uintptr(size),
 		f: (*struct {
-			f func(uintptr, uintptr) int32
+			f func(*TLS, uintptr, uintptr) int32
 		})(unsafe.Pointer(&struct{ uintptr }{compar})).f,
+		t: t,
 	})
 }
