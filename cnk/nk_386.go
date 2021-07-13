@@ -24866,9 +24866,12 @@ __75:
 		Data   uintptr
 		Cursor int32
 		Size   int32
-	} { if b0 == 0x0A {
-		return subrs
-	}; return (*Stbtt_fontinfo)(unsafe.Pointer(info)).Gsubrs }(), v)
+	} {
+		if b0 == 0x0A {
+			return subrs
+		}
+		return (*Stbtt_fontinfo)(unsafe.Pointer(info)).Gsubrs
+	}(), v)
 	if !((*Stbtt__buf)(unsafe.Pointer(bp /* &b */)).Size == 0) {
 		goto __76
 	}
@@ -32104,7 +32107,6 @@ __13:
 __14:
 	;
 __12:
-	;
 }
 
 func Xnk__begin(tls *libc.TLS, ctx uintptr) uintptr { /* nuklear.h:18954:31: */
@@ -41838,7 +41840,6 @@ next:
 	glyph_len = Xnk_utf_decode(tls, (text + uintptr(text_len)), bp /* &unicode */, (total_len - text_len))
 	goto __6
 __7:
-	;
 }
 
 var __func__351 = *(*[17]int8)(unsafe.Pointer(ts + 26307 /* "nk_textedit_text" */)) /* nuklear.h:25716:1 */
@@ -42444,7 +42445,6 @@ __90:
 	;
 	goto __1
 __1:
-	;
 }
 
 func nk_textedit_flush_redo(tls *libc.TLS, state uintptr) { /* nuklear.h:26074:1: */
