@@ -5,23 +5,35 @@ import (
 	"unsafe"
 )
 
-var tlsAllocator sync.Map
+var memAllocator sync.Map
+var (
+	stack = make([]byte, 40960)
+	bp    int
+)
 
 func tlsAlloc(n int) uintptr {
-	slice := make([]byte, n)
-	ptr := uintptr(unsafe.Pointer(&slice[0]))
-	tlsAllocator.Store(ptr, slice)
-	return ptr
+	if bp+n > len(stack) {
+		panic("stack overflow")
+	}
+	old := bp
+	bp += n
+	return uintptr(unsafe.Pointer(&stack[old]))
 }
 
-func tlsFree(n uintptr) {
-	tlsAllocator.Delete(n)
+func tlsFree(n int) {
+	bp -= n
+	if bp < 0 {
+		panic("stack neg")
+	}
 }
 
 func Xmalloc(n Nk_size) uintptr {
-	return tlsAlloc(int(n))
+	slice := make([]byte, n)
+	ptr := uintptr(unsafe.Pointer(&slice[0]))
+	memAllocator.Store(ptr, slice)
+	return ptr
 }
 
 func Xfree(n uintptr) {
-	tlsFree(n)
+	memAllocator.Delete(n)
 }
